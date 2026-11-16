@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "typecheck": "tsc -b --pretty false",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:audit": "node --test tests/audit.node.mjs"
   },
   "dependencies": {
     "react": "19.3.1",

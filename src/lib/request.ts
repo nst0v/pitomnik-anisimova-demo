@@ -37,7 +37,7 @@ export function buildRequestText(lines: CartLine[], fields: RequestFields) {
   const itemLines = lines.length
     ? lines.map((line) => {
         const price = line.plant.price === null ? 'цена не опубликована' : formatRubles(line.plant.price * line.quantity)
-        return `№ ${line.plant.catalogNumber} — ${line.plant.name} — ${line.quantity} шт. (${price})`
+        return `№ ${line.plant.catalogNumber} — ${line.plant.name} — ${line.quantity} × ${line.plant.unit} (${price})`
       })
     : ['Позиции пока не выбраны.']
 
@@ -47,10 +47,14 @@ export function buildRequestText(lines: CartLine[], fields: RequestFields) {
 
   return [
     'Предварительная заявка — питомник Анисимова',
+    'Составлено в демоверсии. Цены взяты из истёкшего каталога 2025–2026.',
+    'Это запрос подтверждения наличия и условий, не оплаченный заказ.',
+    '',
+    `Номера по каталогу: ${lines.map(({ plant, quantity }) => quantity === 1 ? String(plant.catalogNumber) : `${plant.catalogNumber}-${quantity}`).join(', ') || 'не выбраны'}`,
     '',
     ...itemLines,
     '',
-    `Стоимость выбранных позиций без доставки: ${formatRubles(knownTotal)}${unknownLine}`,
+    `Расчёт по архивным ценам без доставки: ${formatRubles(knownTotal)}${unknownLine}`,
     '',
     `Имя: ${fields.name.trim() || 'не указано'}`,
     `Контакт для ответа: ${fields.contact.trim() || 'не указан'}`,

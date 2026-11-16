@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type SVGProps } from 'react'
 import { categories, categoryById, plants, type CategoryId, type Plant } from './data/plants'
+import { normalizeSearch } from './lib/search'
+import { copyText } from './lib/clipboard'
 import {
   buildRequestText,
   formatRubles,
@@ -99,12 +101,22 @@ function App() {
   const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null)
   const [requestOpen, setRequestOpen] = useState(false)
   const [copyStatus, setCopyStatus] = useState('')
+  const [storageUnavailable, setStorageUnavailable] = useState(false)
   const detailDialogRef = useRef<HTMLDialogElement>(null)
   const requestDialogRef = useRef<HTMLDialogElement>(null)
+  const requestPreviewRef = useRef<HTMLDetailsElement>(null)
+  const copyTimerRef = useRef<number | undefined>(undefined)
 
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ cart, fields }))
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ cart, fields }))
+      setStorageUnavailable(false)
+    } catch {
+      setStorageUnavailable(true)
+    }
   }, [cart, fields])
+
+  useEffect(() => () => window.clearTimeout(copyTimerRef.current), [])
 
   useEffect(() => {
     const dialog = detailDialogRef.current
@@ -121,10 +133,10 @@ function App() {
   }, [requestOpen])
 
   const filteredPlants = useMemo(() => {
-    const query = search.trim().toLocaleLowerCase('ru-RU').replace(/^№\s*/, '')
+    const query = normalizeSearch(search)
     return plants.filter((plant) => {
       const matchesCategory = category === 'all' || plant.category === category
-      const haystack = `${plant.catalogNumber} ${plant.name} ${plant.latinName ?? ''}`.toLocaleLowerCase('ru-RU')
+      const haystack = normalizeSearch(`${plant.catalogNumber} ${plant.name} ${plant.latinName ?? ''}`)
       return matchesCategory && (!query || haystack.includes(query))
     })
   }, [category, search])
@@ -153,20 +165,15 @@ function App() {
   }
 
   const copyRequest = async () => {
-    try {
-      await navigator.clipboard.writeText(requestText)
-    } catch {
-      const textarea = document.createElement('textarea')
-      textarea.value = requestText
-      textarea.style.position = 'fixed'
-      textarea.style.opacity = '0'
-      document.body.append(textarea)
-      textarea.select()
-      document.execCommand('copy')
-      textarea.remove()
+    if (!requestDialogRef.current) return
+    window.clearTimeout(copyTimerRef.current)
+    const copied = await copyText(requestText, requestDialogRef.current)
+    setCopyStatus(copied ? 'Текст заявки скопирован' : 'Не удалось скопировать. Выделите текст заявки вручную.')
+    if (!copied && requestPreviewRef.current) {
+      requestPreviewRef.current.open = true
+      requestPreviewRef.current.scrollIntoView({ block: 'nearest' })
     }
-    setCopyStatus('Текст заявки скопирован')
-    window.setTimeout(() => setCopyStatus(''), 2800)
+    if (copied) copyTimerRef.current = window.setTimeout(() => setCopyStatus(''), 2800)
   }
 
   const resetFilters = () => {
@@ -250,7 +257,7 @@ function App() {
               <div>
                 <p className="section-kicker">Образец будущего каталога</p>
                 <h2>Выберите растения</h2>
-                <p>Поиск работает по названию и номеру из исходного каталога. Подробности и источник доступны в каждой карточке.</p>
+                <p>В демоверсии — 17 растений из четырёх разделов, а не полный каталог. Поиск работает по названию и исходному номеру. Подробности и источник доступны в каждой карточке.</p>
               </div>
               <button className="button button-outline catalog-request" type="button" onClick={() => setRequestOpen(true)}>
                 <BasketIcon /> Открыть заявку <span>{selectedPositions}</span>
@@ -334,7 +341,7 @@ function App() {
                 <p className="section-kicker light">Порядок с исходного сайта</p>
                 <h2>Как оформить заказ</h2>
               </div>
-              <p>Демоверсия помогает собрать номера позиций. Опубликованные правила оплаты и пересылки сохранены ниже без изменения порядка.</p>
+              <p>Ниже — архивные правила сезона 2025–2026, а не действующие условия продажи. Демоверсия формирует только предварительный запрос. До оплаты владелец должен подтвердить цены, наличие, доставку и порядок заказа.</p>
             </div>
 
             <ol className="order-steps">
@@ -346,12 +353,12 @@ function App() {
 
             <div className="order-details">
               <article>
-                <p className="detail-label">Пересылка по России</p>
+                <p className="detail-label">Архивные тарифы · требуют подтверждения</p>
                 <h3>390 ₽ — семена<br />550 ₽ — посадочный материал</h3>
                 <p>Опубликованные тарифы за отправление 1 класса. Если в заказе есть семена и саженцы, на исходном сайте указана оплата двух отправлений.</p>
               </article>
               <article>
-                <p className="detail-label">Сроки</p>
+                <p className="detail-label">Архивные сроки · требуют подтверждения</p>
                 <h3>Семена — в течение недели после оплаты</h3>
                 <p>Луковицы и саженцы отправляются в сроки, указанные у позиции. Для других стран — тарифы Почты России, предварительное согласование и полная предоплата.</p>
               </article>
@@ -450,7 +457,7 @@ function App() {
       <dialog className="request-dialog" ref={requestDialogRef} onClose={() => setRequestOpen(false)} aria-labelledby="request-title">
         <div className="request-shell">
           <header className="request-header">
-            <div><p className="section-kicker">Черновик письма</p><h2 id="request-title">Моя заявка</h2><p>{selectedPositions} позиций · {cartSummary.unitsCount} единиц</p></div>
+            <div><p className="section-kicker">Черновик письма</p><h2 id="request-title">Моя заявка</h2><p>Позиций: {selectedPositions} · Единиц: {cartSummary.unitsCount}</p></div>
             <button className="dialog-close" type="button" onClick={() => setRequestOpen(false)} aria-label="Закрыть заявку"><CloseIcon /></button>
           </header>
 
@@ -498,22 +505,23 @@ function App() {
             </section>
 
             <section className="request-form-panel" aria-label="Контакты для заявки">
-              <div className="request-form-heading"><h3>Контакты для ответа</h3><p>Поля остаются только в вашем браузере, пока вы сами не откроете письмо.</p></div>
+              <div className="request-form-heading"><h3>Контакты для ответа</h3><p>Это предварительный запрос наличия, не оформленный заказ. Данные передаются питомнику только после отправки письма вами.</p></div>
+              {storageUnavailable && <p className="outdated-note" role="status">Браузер не сохраняет черновик. Скопируйте заявку до закрытия или обновления страницы.</p>}
               <label><span>Ваше имя</span><input type="text" value={fields.name} onChange={(event) => setFields((current) => ({ ...current, name: event.target.value }))} placeholder="Например, Ирина" autoComplete="name" /></label>
               <label><span>Телефон или электронная почта</span><input type="text" value={fields.contact} onChange={(event) => setFields((current) => ({ ...current, contact: event.target.value }))} placeholder="Куда удобно ответить" /></label>
               <label><span>Комментарий <small>необязательно</small></span><textarea value={fields.comment} onChange={(event) => setFields((current) => ({ ...current, comment: event.target.value }))} placeholder="Город доставки, вопросы по срокам или растениям" rows={4} /></label>
 
-              <details className="request-preview">
+              <details className="request-preview" ref={requestPreviewRef}>
                 <summary>Посмотреть текст заявки</summary>
                 <pre>{requestText}</pre>
               </details>
 
               <div className="request-actions">
-                <button className="button button-outline" type="button" onClick={copyRequest} disabled={!cartLines.length}><CopyIcon /> {copyStatus || 'Скопировать заявку'}</button>
+                <button className="button button-outline" type="button" onClick={copyRequest} disabled={!cartLines.length}><CopyIcon /> {copyStatus === 'Текст заявки скопирован' ? copyStatus : 'Скопировать заявку'}</button>
                 <a className={`button button-primary ${cartLines.length ? '' : 'disabled'}`} href={cartLines.length ? mailtoHref : undefined} aria-disabled={!cartLines.length}><MailIcon /> Открыть письмо</a>
               </div>
-              <p className="mail-explanation">Откроется почтовое приложение с готовым текстом. Проверьте письмо и нажмите «Отправить» самостоятельно — сайт не сообщает об отправке, пока её действительно не было.</p>
-              <p className="copy-live" aria-live="polite">{copyStatus}</p>
+              <p className="mail-explanation">Сайт сам не отправляет заявки и не подтверждает получение письма. «Открыть письмо» запускает почтовое приложение: проверьте текст и отправьте его самостоятельно. Если приложение не настроено или длинное письмо открылось не полностью, скопируйте заявку и отправьте на {NURSERY_EMAIL} через свою почту.</p>
+              <p className={copyStatus && copyStatus !== 'Текст заявки скопирован' ? 'outdated-note' : 'copy-live'} aria-live="polite">{copyStatus}</p>
             </section>
           </div>
         </div>

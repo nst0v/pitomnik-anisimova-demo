@@ -115,7 +115,7 @@ test('request quantities, persistence, copying, mail text and removal work', asy
   await requestDialog.getByLabel('Телефон или электронная почта').fill('irina@example.com')
   await requestDialog.getByLabel(/Комментарий/).fill('Прошу уточнить наличие.')
   await requestDialog.getByText('Посмотреть текст заявки').click()
-  await expect(requestDialog.locator('pre')).toContainText('№ 42 — Купальница азиатская — 2 шт.')
+  await expect(requestDialog.locator('pre')).toContainText('№ 42 — Купальница азиатская — 2 × Пакет, 50 семян')
   await expect(requestDialog.locator('pre')).toContainText('160 ₽')
   await expect(requestDialog.locator('pre')).toContainText('без доставки')
 
