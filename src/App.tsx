@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type SVGProps } from 'react'
-import { categories, categoryById, plants, type CategoryId, type Plant } from './data/plants'
+import { categories, categoryById, plants, type CategoryId, type Plant, type PlantImage } from './data/plants'
 import { normalizeSearch } from './lib/search'
 import { copyText } from './lib/clipboard'
 import {
@@ -20,6 +20,18 @@ type StoredDraft = {
 }
 
 const emptyFields: RequestFields = { name: '', contact: '', comment: '' }
+
+function PhotoCredit({ image, detailed = false }: { image?: PlantImage; detailed?: boolean }) {
+  if (!image?.attribution) return null
+  const { author, license, licenseUrl } = image.attribution
+  return (
+    <p className="photo-credit">
+      <strong>Иллюстрация</strong> · Фото: <a href={image.sourceUrl} target="_blank" rel="noreferrer">{author}</a>
+      {' · '}<a href={licenseUrl} target="_blank" rel="noreferrer">{license}</a>
+      {detailed && <span>Внешний вид растения, не экземпляр питомника. Копия уменьшена и переведена в WebP; края могут быть обрезаны при отображении. <a href="./IMAGE_CREDITS.md" target="_blank" rel="noreferrer">Все источники</a></span>}
+    </p>
+  )
+}
 
 function readStoredDraft(): StoredDraft {
   try {
@@ -258,6 +270,7 @@ function App() {
                 <p className="section-kicker">Образец будущего каталога</p>
                 <h2>Выберите растения</h2>
                 <p>В демоверсии — 17 растений из четырёх разделов, а не полный каталог. Поиск работает по названию и исходному номеру. Подробности и источник доступны в каждой карточке.</p>
+                <p className="catalog-photo-note">Фотографии с пометкой «Иллюстрация» показывают внешний вид растения, а не конкретный посадочный материал питомника.</p>
               </div>
               <button className="button button-outline catalog-request" type="button" onClick={() => setRequestOpen(true)}>
                 <BasketIcon /> Открыть заявку <span>{selectedPositions}</span>
@@ -304,6 +317,7 @@ function App() {
                         </div>
                       )}
                       <div className="plant-body">
+                        <PhotoCredit image={plant.image} />
                         <p className="plant-category">{categoryById[plant.category].shortLabel}</p>
                         <h3>{plant.name}</h3>
                         {plant.latinName && <p className="latin-name">{plant.latinName}</p>}
@@ -418,7 +432,7 @@ function App() {
       <footer className="site-footer">
         <div className="container footer-inner">
           <a className="brand footer-brand" href="#top"><BrandMark /><span><strong>Питомник Анисимова</strong><small>Демонстрационная версия обновления сайта</small></span></a>
-          <p>Контент перенесён с исходного сайта без рекламных скриптов и сторонних счётчиков.</p>
+          <p>Тексты — с сайта питомника. Источники дополнительных фотографий указаны в карточках.</p>
           <a href="https://sem-ot-anis.narod.ru/" target="_blank" rel="noreferrer">Исходный сайт <ArrowIcon /></a>
         </div>
       </footer>
@@ -432,6 +446,7 @@ function App() {
               <p className="plant-category">{categoryById[selectedPlant.category].label} · № {selectedPlant.catalogNumber}</p>
               <h2 id={`detail-title-${selectedPlant.catalogNumber}`}>{selectedPlant.name}</h2>
               {selectedPlant.latinName && <p className="latin-name">{selectedPlant.latinName}</p>}
+              <PhotoCredit image={selectedPlant.image} detailed />
               <p className="detail-description">{selectedPlant.description}</p>
               {(selectedPlant.note || selectedPlant.priceNote || selectedPlant.shippingNote) && (
                 <div className="detail-notes">

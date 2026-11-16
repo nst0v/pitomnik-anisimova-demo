@@ -833,6 +833,30 @@ h3 {
   text-transform: uppercase;
 }
 
+.photo-credit {
+  margin: 0 0 16px;
+  color: #58675e;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.photo-credit a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.photo-credit span {
+  display: block;
+  margin-top: 6px;
+}
+
+.catalog-heading .catalog-photo-note {
+  margin-top: 12px;
+  font-size: 14px;
+}
+
 .plant-body h3 {
   margin: 0 0 5px;
   color: var(--green);

@@ -4,6 +4,11 @@ export type PlantImage = {
   src: string
   alt: string
   sourceUrl: string
+  attribution?: {
+    author: string
+    license: string
+    licenseUrl: string
+  }
 }
 
 export type Plant = {
@@ -41,6 +46,16 @@ export const plants: Plant[] = [
     unit: 'Пакет, 50 семян',
     price: 50,
     sourceUrl: 'https://sem-ot-anis.narod.ru/index/0-61',
+    image: {
+      src: './images/papaver-paeoniflorum.webp',
+      alt: "Махровый красный цветок пионовидного мака",
+      sourceUrl: "https://commons.wikimedia.org/wiki/File:Giant_Double_Red_Peony_Poppy_-_Flickr_-_Swallowtail_Garden_Seeds.jpg",
+      attribution: {
+        author: "Swallowtail Garden Seeds",
+        license: "CC BY 2.0",
+        licenseUrl: "https://creativecommons.org/licenses/by/2.0",
+      },
+    },
   },
   {
     catalogNumber: 3,
@@ -52,6 +67,16 @@ export const plants: Plant[] = [
     unit: 'Пакет, 100 семян',
     price: 40,
     sourceUrl: 'https://sem-ot-anis.narod.ru/index/0-61',
+    image: {
+      src: './images/phacelia-tanacetifolia.webp',
+      alt: "Сиреневые соцветия фацелии пижмолистной",
+      sourceUrl: "https://commons.wikimedia.org/wiki/File:IMG_7406-Phacelia_tanacetifolia.jpg",
+      attribution: {
+        author: "C T Johansson",
+        license: "CC BY 3.0",
+        licenseUrl: "https://creativecommons.org/licenses/by/3.0",
+      },
+    },
   },
   {
     catalogNumber: 5,
@@ -63,6 +88,16 @@ export const plants: Plant[] = [
     unit: 'Пакет, 30 семян',
     price: 60,
     sourceUrl: 'https://sem-ot-anis.narod.ru/index/0-61',
+    image: {
+      src: './images/cephalophora-aromatica.webp',
+      alt: "Жёлтые шаровидные соцветия цефалофоры ароматной",
+      sourceUrl: "https://commons.wikimedia.org/wiki/File:Cephalophora_aromatica.jpg",
+      attribution: {
+        author: "Ettrig",
+        license: "CC BY-SA 4.0",
+        licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0",
+      },
+    },
     note: 'На исходном сайте: количество ограничено, наличие нужно уточнять.',
   },
   {
@@ -75,6 +110,16 @@ export const plants: Plant[] = [
     unit: 'Пакет, 50 семян',
     price: 50,
     sourceUrl: 'https://sem-ot-anis.narod.ru/index/0-61',
+    image: {
+      src: './images/chenopodium-foliosum.webp',
+      alt: "Стебли земляничного шпината с красными соплодиями",
+      sourceUrl: "https://commons.wikimedia.org/wiki/File:Chenopodium_foliosum_sl18.jpg",
+      attribution: {
+        author: "Stefan.lefnaer",
+        license: "CC BY-SA 4.0",
+        licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0",
+      },
+    },
   },
   {
     catalogNumber: 7,
@@ -86,6 +131,16 @@ export const plants: Plant[] = [
     unit: 'Пакет, 50 семян',
     price: 40,
     sourceUrl: 'https://sem-ot-anis.narod.ru/index/0-62',
+    image: {
+      src: './images/aquilegia-hybrida.webp',
+      alt: "Двухцветные цветки гибридной аквилегии с длинными шпорцами",
+      sourceUrl: "https://commons.wikimedia.org/wiki/File:Aquilegia_x_hybrida_a4.jpg",
+      attribution: {
+        author: "Jerzy Opioła",
+        license: "CC BY-SA 4.0",
+        licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0",
+      },
+    },
   },
   {
     catalogNumber: 19,
@@ -178,6 +233,16 @@ export const plants: Plant[] = [
     unit: 'Пакет, 50 семян',
     price: 50,
     sourceUrl: 'https://sem-ot-anis.narod.ru/index/0-64',
+    image: {
+      src: './images/vaccinium-uliginosum.webp',
+      alt: "Спелые ягоды голубики обыкновенной",
+      sourceUrl: "https://commons.wikimedia.org/wiki/File:Vaccinium_uliginosum_berries.jpg",
+      attribution: {
+        author: "Wkee4ager",
+        license: "CC BY-SA 4.0",
+        licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0",
+      },
+    },
   },
   {
     catalogNumber: 109,
@@ -205,6 +270,16 @@ export const plants: Plant[] = [
     unit: 'Пакет, 30 семян',
     price: 40,
     sourceUrl: 'https://sem-ot-anis.narod.ru/index/0-64',
+    image: {
+      src: './images/galega-orientalis.webp',
+      alt: "Фиолетовые соцветия галеги восточной",
+      sourceUrl: "https://commons.wikimedia.org/wiki/File:Galega_orientalis_2.jpg",
+      attribution: {
+        author: "Franz Xaver",
+        license: "CC BY-SA 3.0",
+        licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0",
+      },
+    },
     note: 'Саженцы этого растения в исходном каталоге указаны отдельно под № 191.',
   },
   {
@@ -217,6 +292,16 @@ export const plants: Plant[] = [
     unit: 'Пакет, 50 семян',
     price: 40,
     sourceUrl: 'https://sem-ot-anis.narod.ru/index/0-77',
+    image: {
+      src: './images/agastache-foeniculum.webp',
+      alt: "Сиреневые соцветия лофанта анисового",
+      sourceUrl: "https://commons.wikimedia.org/wiki/File:Agastache_foeniculum01.jpg",
+      attribution: {
+        author: "Meneerke bloem",
+        license: "CC BY-SA 3.0",
+        licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0",
+      },
+    },
   },
   {
     catalogNumber: 140,
@@ -228,6 +313,16 @@ export const plants: Plant[] = [
     unit: 'Пакет, 20 семян',
     price: 40,
     sourceUrl: 'https://sem-ot-anis.narod.ru/index/0-77',
+    image: {
+      src: './images/tragopogon-porrifolius.webp',
+      alt: "Фиолетовый цветок овсяного корня",
+      sourceUrl: "https://commons.wikimedia.org/wiki/File:Tragopogon_porrifolius_1_MHNT.jpg",
+      attribution: {
+        author: "Roger Culos",
+        license: "CC BY-SA 4.0",
+        licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0",
+      },
+    },
   },
   {
     catalogNumber: 176,
