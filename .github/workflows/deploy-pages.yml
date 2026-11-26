@@ -1,4 +1,4 @@
-name: Deploy demo to GitHub Pages
+name: Deploy nursery website to GitHub Pages
 
 on:
   push:
@@ -29,6 +29,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Validate catalog and order calculations
+        run: npm run test:audit
 
       - name: Build
         run: npm run build

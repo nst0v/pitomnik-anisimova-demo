@@ -1,5 +1,5 @@
 {
-  "name": "anisimov-nursery-demo",
+  "name": "anisimov-nursery",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -9,7 +9,7 @@
     "preview": "vite preview --host 0.0.0.0",
     "typecheck": "tsc -b --pretty false",
     "test:e2e": "playwright test",
-    "test:audit": "node --test tests/audit.node.mjs"
+    "test:audit": "node --import ./tests/register-typescript.mjs --test tests/audit.node.mjs"
   },
   "dependencies": {
     "react": "19.3.1",
