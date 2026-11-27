@@ -1,0 +1,20 @@
+Options -Indexes
+DirectoryIndex index.html
+
+RewriteEngine On
+
+# Keep certificate validation reachable while denying hidden files/directories.
+RewriteRule (^|/)\.(?!well-known(?:/|$)) - [F,L]
+
+# Enable only after a trusted certificate is installed: touch .force-https.
+RewriteCond %{DOCUMENT_ROOT}/.force-https -f
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
+RewriteRule ^ https://sem-ot-anis.ru%{REQUEST_URI} [R=301,L,NE]
+
+# Do not add a file-exists exception here. Dynamic content must use the live API.
+RewriteRule ^(?:api/.*|site-content\.json)$ hosting-bridge.php [L]
+
+<FilesMatch "(?:^\.|\.(?:env|log|sh|mjs|map|bak|sql|ini|tar|gz)$)">
+  Require all denied
+</FilesMatch>

@@ -11,7 +11,8 @@
     "typecheck": "tsc -b --pretty false",
     "test:e2e": "playwright test",
     "test:audit": "node --import ./tests/register-typescript.mjs --test tests/audit.node.mjs",
-    "test:admin": "node --test tests/admin.node.mjs tests/admin-content.node.mjs"
+    "test:admin": "node --test tests/admin.node.mjs tests/admin-content.node.mjs",
+    "test:hosting": "node --test tests/hosting.node.mjs"
   },
   "dependencies": {
     "react": "19.3.1",
