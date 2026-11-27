@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useRef, useState, type SVGProps } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type SVGProps } from 'react'
 import { categories, categoryById, catalogSeason, NURSERY_EMAIL, plants, type CategoryId, type Plant, type PlantImage } from './data/plants'
 import { normalizeSearch } from './lib/search'
 import { copyText } from './lib/clipboard'
+import ArticlesPreview from './components/ArticlesPreview'
+import { articles, articleHref } from './data/articles'
 import {
   buildRequestText,
   formatRubles,
@@ -22,6 +24,11 @@ type StoredDraft = {
 
 const emptyFields: RequestFields = { name: '', contact: '', comment: '', address: '', customerCode: '', delivery: 'post', payment: '' }
 const PAGE_SIZE = 24
+const Articles = lazy(() => import('./components/Articles'))
+
+function articleSlug(hash: string): string | null {
+  try { return hash.startsWith('#/articles/') ? decodeURIComponent(hash.slice('#/articles/'.length).split('?')[0]) : null } catch { return 'not-found' }
+}
 
 function PhotoCredit({ image, detailed = false }: { image?: PlantImage; detailed?: boolean }) {
   if (!image?.attribution) return null
@@ -127,6 +134,8 @@ function QuantityInput({ quantity, minimum, onCommit, name }: { quantity: number
 }
 
 function App() {
+  const [hash, setHash] = useState(window.location.hash)
+  const articlesOpen = hash === '#/articles' || hash === '#/articles/' || hash.startsWith('#/articles/')
   const initialDraft = useMemo(readStoredDraft, [])
   const [cart, setCart] = useState<Cart>(initialDraft.cart)
   const [fields, setFields] = useState<RequestFields>(initialDraft.fields)
@@ -142,6 +151,24 @@ function App() {
   const requestDialogRef = useRef<HTMLDialogElement>(null)
   const requestPreviewRef = useRef<HTMLDetailsElement>(null)
   const copyTimerRef = useRef<number | undefined>(undefined)
+
+  useEffect(() => {
+    const onHashChange = () => setHash(window.location.hash)
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  }, [])
+
+  useEffect(() => {
+    if (articlesOpen) {
+      window.scrollTo({ top: 0, behavior: 'instant' })
+      return
+    }
+    document.title = 'Питомник Анисимова — каталог растений 2026–2027'
+    if (hash && !hash.startsWith('#/')) {
+      const frame = requestAnimationFrame(() => document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: 'instant' }))
+      return () => cancelAnimationFrame(frame)
+    }
+  }, [hash, articlesOpen])
 
   useEffect(() => {
     try {
@@ -255,6 +282,7 @@ function App() {
           <nav className="main-nav" aria-label="Основная навигация">
             <a href="#catalog">Каталог</a>
             <a href="#order">Как заказать</a>
+            <a href="#/articles" aria-current={articlesOpen ? 'page' : undefined}>Статьи</a>
             <a href="#about">О питомнике</a>
             <a href="#contacts">Контакты</a>
           </nav>
@@ -271,12 +299,14 @@ function App() {
         <nav className="mobile-nav container" aria-label="Навигация по странице">
           <a href="#catalog">Каталог</a>
           <a href="#order">Как заказать</a>
+          <a href="#/articles" aria-current={articlesOpen ? 'page' : undefined}>Статьи</a>
           <a href="#about">О питомнике</a>
           <a href="#contacts">Контакты</a>
         </nav>
       </header>
 
       <main id="main">
+        {articlesOpen ? <Suspense fallback={<section className="article-state container" aria-live="polite"><p>Открываем библиотеку садовода…</p></section>}><Articles slug={articleSlug(hash)} onSelectPlant={(number) => { setSearch(String(number)); setCategory('all') }} /></Suspense> : <>
         <section className="hero" id="top">
           <div className="hero-inner container">
             <div className="hero-copy">
@@ -467,10 +497,12 @@ function App() {
                 <div><strong>С 1991 года</strong><span>рассылка посадочного материала</span></div>
                 <div><strong>Ручная работа</strong><span>сбор и подготовка семян</span></div>
               </div>
-              <a className="source-link" href="https://sem-ot-anis.narod.ru/publ/" target="_blank" rel="noreferrer">Статьи о растениях и выращивании <ArrowIcon /></a>
+              <a className="source-link" href="#/articles">Статьи о растениях и выращивании <ArrowIcon /></a>
             </div>
           </div>
         </section>
+
+        <ArticlesPreview />
 
         <section className="contacts-section" id="contacts">
           <div className="container contacts-grid">
@@ -489,6 +521,7 @@ function App() {
             </address>
           </div>
         </section>
+        </>}
       </main>
 
       <footer className="site-footer">
@@ -527,6 +560,7 @@ function App() {
                 <button className="button button-primary" type="button" onClick={() => addToCart(selectedPlant)}><PlusIcon /> Добавить в заявку{cart[String(selectedPlant.catalogNumber)] ? ` · ${cart[String(selectedPlant.catalogNumber)]}` : ''}</button>
                 <a href={selectedPlant.sourceUrl} target="_blank" rel="noreferrer">Описание в каталоге Word <DownloadIcon /></a>
               </div>
+              {articles.some((article) => article.plantNumbers.includes(selectedPlant.catalogNumber)) && <div className="plant-article-links"><strong>Почитать об этом растении</strong>{articles.filter((article) => article.plantNumbers.includes(selectedPlant.catalogNumber)).slice(0, 3).map((article) => <a href={articleHref(article)} key={article.slug} onClick={() => setSelectedPlant(null)}>{article.title} ↗</a>)}</div>}
             </div>
           </div>
         )}

@@ -5,6 +5,24 @@ import { normalizeSearch } from '../src/lib/search.ts'
 import { copyText } from '../src/lib/clipboard.ts'
 import { buildRequestText, getCartSummary, getOrderEstimate, getUnitPrice } from '../src/lib/request.ts'
 import { plants } from '../src/data/plants.ts'
+import { articles } from '../src/data/articles.ts'
+
+test('articles contain each topic once, with full local text and original Word files', () => {
+  assert.equal(articles.length, 41)
+  assert.equal(new Set(articles.map(article => article.slug)).size, 41)
+  assert.equal(new Set(articles.map(article => article.title)).size, 41)
+  for (const article of articles) {
+    assert.equal(article.contentStatus, 'full')
+    assert.match(article.sourceUrl, /^https:\/\/sem-ot-anis\.narod\.ru\/publ\//)
+    const document = JSON.parse(readFileSync(new URL(`../public/${article.contentUrl.slice(2)}`, import.meta.url), 'utf8'))
+    assert.equal(document.slug, article.slug)
+    assert.ok(document.blocks.map(block => block.text ?? '').join(' ').length > 1200, article.title)
+    const original = readFileSync(new URL(`../public/${article.downloadUrl.slice(2)}`, import.meta.url))
+    assert.equal(original.subarray(0, 8).toString('hex'), 'd0cf11e0a1b11ae1', article.title)
+    for (const number of article.plantNumbers) assert.ok(plants.some(plant => plant.catalogNumber === number), `related plant exists: ${number}`)
+    for (const block of document.blocks.filter(block => block.type === 'image')) assert.ok(existsSync(new URL(`../public/${block.src.slice(2)}`, import.meta.url)), `inline image exists: ${article.slug}`)
+  }
+})
 
 test('search handles Latin diacritics and Russian spelling without conflating letters', () => {
   const matches = plants.filter(p => normalizeSearch(`${p.catalogNumber} ${p.name} ${p.latinName ?? ''}`).includes(normalizeSearch('Bergenia crassifolia')))
