@@ -1391,7 +1391,12 @@ h3 {
   text-align: center;
 }
 
-.footer-inner > a:last-child {
+.footer-links {
+  display: grid;
+  gap: 12px;
+}
+
+.footer-links a {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -1400,6 +1405,11 @@ h3 {
   font-weight: 750;
   white-space: nowrap;
   text-underline-offset: 4px;
+}
+
+.footer-links svg {
+  width: 18px;
+  height: 18px;
 }
 
 dialog {

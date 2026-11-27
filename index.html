@@ -3,6 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      if (/\/admin\/?$/.test(window.location.pathname)) {
+        const base = document.createElement('base')
+        base.href = window.location.pathname.replace(/admin\/?$/, '')
+        document.head.append(base)
+        const robots = document.createElement('meta')
+        robots.name = 'robots'
+        robots.content = 'noindex, nofollow'
+        document.head.append(robots)
+      }
+    </script>
     <meta
       name="description"
       content="Редкие растения из питомника Геннадия Павловича Анисимова в Томске. Каталог 2026–2027, доставка по России и авторские статьи о выращивании растений."

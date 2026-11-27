@@ -5,11 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/prepare_articles.mjs && vite --host 0.0.0.0",
-    "build": "node scripts/prepare_articles.mjs && tsc -b && vite build",
+    "build": "node scripts/prepare_articles.mjs && tsc -b && vite build && node scripts/prepare_admin.mjs",
+    "start": "node server/index.mjs",
     "preview": "vite preview --host 0.0.0.0",
     "typecheck": "tsc -b --pretty false",
     "test:e2e": "playwright test",
-    "test:audit": "node --import ./tests/register-typescript.mjs --test tests/audit.node.mjs"
+    "test:audit": "node --import ./tests/register-typescript.mjs --test tests/audit.node.mjs",
+    "test:admin": "node --test tests/admin.node.mjs tests/admin-content.node.mjs"
   },
   "dependencies": {
     "react": "19.3.1",
@@ -17,6 +19,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.65.1",
+    "@types/node": "^22.20.7",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.3.0",

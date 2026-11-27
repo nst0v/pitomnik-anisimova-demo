@@ -1,4 +1,9 @@
 import { defineConfig } from '@playwright/test'
+import { mkdtempSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+
+const testDataDirectory = mkdtempSync(join(tmpdir(), 'nursery-browser-tests-'))
 
 export default defineConfig({
   testDir: './tests',
@@ -17,7 +22,8 @@ export default defineConfig({
   webServer: {
     command: 'npm run dev -- --host 127.0.0.1 --port 4175 --strictPort',
     url: 'http://127.0.0.1:4175',
-    reuseExistingServer: true,
+    reuseExistingServer: false,
+    env: { ADMIN_DATA_DIR: testDataDirectory },
     timeout: 30_000,
   },
 })

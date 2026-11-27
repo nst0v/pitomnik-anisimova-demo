@@ -528,7 +528,7 @@ function App() {
         <div className="container footer-inner">
           <a className="brand footer-brand" href="#top"><BrandMark /><span><strong>Питомник Анисимова</strong><small>© 2026 · Томск · С любовью к растениям с 1991 года</small></span></a>
           <p>Авторская коллекция Геннадия Павловича Анисимова.<br />Каталог сезона 2026–2027.</p>
-          <a href={catalogSeason.downloadUrl} download>Каталог в Word <DownloadIcon /></a>
+          <div className="footer-links"><a href={catalogSeason.downloadUrl} download>Каталог в Word <DownloadIcon /></a><a href="./admin">Вход для администратора</a></div>
         </div>
       </footer>
 
